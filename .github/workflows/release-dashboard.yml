@@ -3,7 +3,7 @@ name: release-dashboard
 on:
   push:
     branches: [main]
-    tags: ['dashboard-v*']
+    tags: ['v*']
     paths:
       - 'dashboard/**'
       - '.github/workflows/release-dashboard.yml'

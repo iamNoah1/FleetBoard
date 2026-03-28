@@ -59,14 +59,14 @@ Open `http://localhost:3000`.
 ```bash
 # Dashboard — install once in a central cluster
 helm upgrade --install fleetboard-dashboard \
-  oci://ghcr.io/YOUR_ORG/helm/fleetboard-dashboard \
+  oci://ghcr.io/iamNoah1/helm/fleetboard-dashboard \
   --namespace fleetboard-system --create-namespace \
   --set clusters[0]=dev --set clusters[1]=staging --set clusters[2]=prod \
   --set apiKeys.dev=<key> --set apiKeys.staging=<key> --set apiKeys.prod=<key>
 
 # Collector — install in each cluster you want to monitor
 helm upgrade --install fleetboard-collector \
-  oci://ghcr.io/YOUR_ORG/helm/fleetboard-collector \
+  oci://ghcr.io/iamNoah1/helm/fleetboard-collector \
   --namespace fleetboard-system \
   --set clusterName=prod \
   --set dashboardUrl=https://fleetboard.example.com \
@@ -104,14 +104,14 @@ The collector does not require any changes to your existing Deployments:
 
 ## Releasing
 
-Images and Helm charts are published to GHCR on push to `main` and on version tags.
+A single version tag releases both components:
 
-| Component | Tag |
-|---|---|
-| Dashboard | `dashboard-v1.2.3` |
-| Collector | `collector-v1.2.3` |
+```bash
+git tag v1.2.3
+git push origin v1.2.3
+```
 
-Both components release independently.
+Images and Helm charts are published to GHCR automatically.
 
 ## License
 

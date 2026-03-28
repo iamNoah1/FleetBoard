@@ -3,7 +3,7 @@ name: release-collector
 on:
   push:
     branches: [main]
-    tags: ['collector-v*']
+    tags: ['v*']
     paths:
       - 'collector/**'
       - '.github/workflows/release-collector.yml'
