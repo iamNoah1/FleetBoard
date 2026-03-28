@@ -59,14 +59,14 @@ Open `http://localhost:3000`.
 ```bash
 # Dashboard — install once in a central cluster
 helm upgrade --install fleetboard-dashboard \
-  oci://ghcr.io/iamNoah1/helm/fleetboard-dashboard \
+  oci://ghcr.io/iamnoah1/helm/fleetboard-dashboard \
   --namespace fleetboard-system --create-namespace \
   --set clusters[0]=dev --set clusters[1]=staging --set clusters[2]=prod \
   --set apiKeys.dev=<key> --set apiKeys.staging=<key> --set apiKeys.prod=<key>
 
 # Collector — install in each cluster you want to monitor
 helm upgrade --install fleetboard-collector \
-  oci://ghcr.io/iamNoah1/helm/fleetboard-collector \
+  oci://ghcr.io/iamnoah1/helm/fleetboard-collector \
   --namespace fleetboard-system \
   --set clusterName=prod \
   --set dashboardUrl=https://fleetboard.example.com \

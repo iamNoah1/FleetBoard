@@ -8,7 +8,8 @@
       "Bash(sed -i '' 's|`/Users/noahispas/Desktop/workspace/gitrepo_private/FleetBoard/dashboard/lib/types.ts`|`dashboard/lib/types.ts`|g' PROJECT_STATUS.md)",
       "Bash(sed -i '' 's|`/Users/noahispas/Desktop/workspace/gitrepo_private/FleetBoard/collector/src/index.ts`|`collector/src/index.ts`|g' PROJECT_STATUS.md)",
       "Bash(npm run:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(xargs sed:*)"
     ]
   }
 }

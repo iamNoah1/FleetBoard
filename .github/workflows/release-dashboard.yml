@@ -64,7 +64,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
+          images: ghcr.io/${{ github.repository_owner | lower }}/${{ env.IMAGE_NAME }}
           tags: |
             type=ref,event=branch
             type=ref,event=tag
@@ -102,4 +102,6 @@ jobs:
         run: helm package ${{ env.CHART_PATH }} --destination /tmp/chart-dist
 
       - name: Push chart to GHCR OCI
-        run: helm push /tmp/chart-dist/*.tgz oci://ghcr.io/${{ github.repository_owner }}/helm
+        run: |
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          helm push /tmp/chart-dist/*.tgz oci://ghcr.io/${OWNER}/helm

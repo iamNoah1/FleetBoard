@@ -233,14 +233,14 @@ Use the manual steps above when you want more control (e.g. keeping the cluster 
 ```bash
 # Dashboard
 helm upgrade --install fleetboard-dashboard \
-  oci://ghcr.io/iamNoah1/helm/fleetboard-dashboard \
+  oci://ghcr.io/iamnoah1/helm/fleetboard-dashboard \
   --namespace fleetboard-system --create-namespace \
   --set clusters[0]=dev \
   --set apiKeys.dev=<key>
 
 # Collector (after creating the API key secret)
 helm upgrade --install fleetboard-collector \
-  oci://ghcr.io/iamNoah1/helm/fleetboard-collector \
+  oci://ghcr.io/iamnoah1/helm/fleetboard-collector \
   --namespace fleetboard-system \
   --set clusterName=dev \
   --set dashboardUrl=https://fleetboard.example.com \

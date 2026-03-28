@@ -22,7 +22,7 @@ Install the dashboard chart:
 
 ```bash
 helm upgrade --install fleetboard-dashboard \
-  oci://ghcr.io/iamNoah1/helm/fleetboard-dashboard \
+  oci://ghcr.io/iamnoah1/helm/fleetboard-dashboard \
   --namespace fleetboard-system --create-namespace \
   --set clusters[0]=dev \
   --set clusters[1]=staging \
@@ -53,7 +53,7 @@ kubectl port-forward svc/fleetboard-dashboard-fleetboard-dashboard 8080:80 -n fl
 **Ingress (production):**
 ```bash
 helm upgrade --install fleetboard-dashboard \
-  oci://ghcr.io/iamNoah1/helm/fleetboard-dashboard \
+  oci://ghcr.io/iamnoah1/helm/fleetboard-dashboard \
   --namespace fleetboard-system \
   ... \
   --set ingress.enabled=true \
@@ -82,7 +82,7 @@ Install the collector chart:
 
 ```bash
 helm upgrade --install fleetboard-collector \
-  oci://ghcr.io/iamNoah1/helm/fleetboard-collector \
+  oci://ghcr.io/iamnoah1/helm/fleetboard-collector \
   --namespace fleetboard-system \
   --set clusterName=prod \
   --set dashboardUrl=https://fleetboard.example.com \
@@ -130,13 +130,13 @@ Open the dashboard — each cluster column should start populating within one sc
 ```bash
 # Upgrade dashboard
 helm upgrade fleetboard-dashboard \
-  oci://ghcr.io/iamNoah1/helm/fleetboard-dashboard \
+  oci://ghcr.io/iamnoah1/helm/fleetboard-dashboard \
   --namespace fleetboard-system \
   --reuse-values
 
 # Upgrade a collector (run in the target cluster context)
 helm upgrade fleetboard-collector \
-  oci://ghcr.io/iamNoah1/helm/fleetboard-collector \
+  oci://ghcr.io/iamnoah1/helm/fleetboard-collector \
   --namespace fleetboard-system \
   --reuse-values
 ```
