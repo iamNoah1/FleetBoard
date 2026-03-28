@@ -9,7 +9,6 @@ COLLECTOR_RELEASE="${E2E_COLLECTOR_RELEASE:-fleetboard-collector}"
 API_KEY="${E2E_API_KEY:-dev-local-key}"
 DASHBOARD_IMAGE="${DASHBOARD_IMAGE:-fleetboard-dashboard:e2e}"
 COLLECTOR_IMAGE="${COLLECTOR_IMAGE:-fleetboard-collector:e2e}"
-LOCAL_PORT="${E2E_LOCAL_PORT:-3000}"
 WAIT_TIMEOUT="${E2E_WAIT_TIMEOUT:-180s}"
 DASHBOARD_REPO_DIR="${DASHBOARD_REPO_DIR:-${ROOT_DIR}/dashboard}"
 COLLECTOR_REPO_DIR="${COLLECTOR_REPO_DIR:-${ROOT_DIR}/collector}"
@@ -95,21 +94,27 @@ helm upgrade --install "${COLLECTOR_RELEASE}" \
 wait_for_rollout "${DASHBOARD_RELEASE}-fleetboard-dashboard"
 wait_for_rollout "${COLLECTOR_RELEASE}-fleetboard-collector"
 
-PF_PID=""
-cleanup() {
-  if [ -n "${PF_PID}" ]; then
-    kill "${PF_PID}" >/dev/null 2>&1 || true
-  fi
-}
-trap cleanup EXIT
+DASHBOARD_POD_IP=$(kubectl get pod -n "${NAMESPACE}" \
+  -l "app.kubernetes.io/instance=${DASHBOARD_RELEASE}" \
+  -o jsonpath='{.items[0].status.podIP}')
 
-kubectl -n "${NAMESPACE}" port-forward svc/${DASHBOARD_RELEASE}-fleetboard-dashboard "${LOCAL_PORT}:80" >/tmp/fleetboard-port-forward.log 2>&1 &
-PF_PID="$!"
+echo "Running smoke check against dashboard (pod IP: ${DASHBOARD_POD_IP})..."
+HTML=""
+for i in $(seq 1 20); do
+  HTML="$(docker exec "${CLUSTER_NAME}-control-plane" \
+    curl -fsS "http://${DASHBOARD_POD_IP}:3000/" 2>/dev/null)" && break
+  echo "  attempt ${i}/20 — not ready yet, retrying in 3s..."
+  sleep 3
+done
 
-sleep 4
-
-echo "Running smoke check against dashboard..."
-HTML="$(curl -fsS "http://127.0.0.1:${LOCAL_PORT}/")"
+if [[ -z "${HTML}" ]]; then
+  echo "Smoke check failed: dashboard did not respond after retries"
+  echo "--- pod status ---"
+  kubectl get pods -n "${NAMESPACE}"
+  echo "--- dashboard pod logs ---"
+  kubectl logs -n "${NAMESPACE}" -l "app.kubernetes.io/instance=${DASHBOARD_RELEASE}" --tail=50 || true
+  exit 1
+fi
 if [[ "${HTML}" != *"demo/orders-api"* ]]; then
   echo "Smoke check failed: demo/orders-api not found in dashboard output"
   exit 1
@@ -120,5 +125,4 @@ if [[ "${HTML}" != *"1.27.0"* ]]; then
 fi
 
 echo "Success: FleetBoard is running and collecting deployment versions."
-echo "Dashboard URL: http://127.0.0.1:${LOCAL_PORT}"
 echo "Collector logs: kubectl -n ${NAMESPACE} logs deploy/${COLLECTOR_RELEASE}-fleetboard-collector -f"
