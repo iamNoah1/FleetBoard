@@ -102,7 +102,9 @@ jobs:
         run: echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io -u "${{ github.actor }}" --password-stdin
 
       - name: Package chart
-        run: helm package ${{ env.CHART_PATH }} --destination /tmp/chart-dist
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          helm package ${{ env.CHART_PATH }} --version "${VERSION}" --app-version "${VERSION}" --destination /tmp/chart-dist
 
       - name: Push chart to GHCR OCI
         run: |
