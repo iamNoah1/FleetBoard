@@ -102,9 +102,13 @@ echo "Running smoke check against dashboard (pod IP: ${DASHBOARD_POD_IP})..."
 HTML=""
 for i in $(seq 1 20); do
   HTML="$(docker exec "${CLUSTER_NAME}-control-plane" \
-    curl -fsS "http://${DASHBOARD_POD_IP}:3000/" 2>/dev/null)" && break
-  echo "  attempt ${i}/20 — not ready yet, retrying in 3s..."
+    curl -fsS "http://${DASHBOARD_POD_IP}:3000/" 2>/dev/null)"
+  if [[ "${HTML}" == *"demo/orders-api"* ]]; then
+    break
+  fi
+  echo "  attempt ${i}/20 — waiting for collector data, retrying in 3s..."
   sleep 3
+  HTML=""
 done
 
 if [[ -z "${HTML}" ]]; then
