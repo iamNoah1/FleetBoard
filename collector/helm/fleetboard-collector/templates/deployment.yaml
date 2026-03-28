@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "fleetboard-collector.fullname" . }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "fleetboard-collector.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "fleetboard-collector.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      serviceAccountName: {{ include "fleetboard-collector.serviceAccountName" . }}
+      containers:
+        - name: collector
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: CLUSTER_NAME
+              value: {{ .Values.clusterName | quote }}
+            - name: DASHBOARD_URL
+              value: {{ .Values.dashboardUrl | quote }}
+            - name: SCRAPE_INTERVAL_MS
+              value: {{ .Values.scrapeIntervalMs | quote }}
+            - name: DISCOVERY_MODE
+              value: {{ .Values.discoveryMode | quote }}
+            - name: LABEL_SELECTOR
+              value: {{ .Values.labelSelector | quote }}
+            - name: NAMESPACE_ALLOWLIST
+              value: {{ join "," .Values.namespaceAllowlist | quote }}
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.apiKeySecretName }}
+                  key: {{ .Values.apiKeySecretKey }}
+          livenessProbe:
+            exec:
+              command: ["node", "--version"]
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}

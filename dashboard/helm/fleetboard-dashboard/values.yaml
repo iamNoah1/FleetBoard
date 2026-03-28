@@ -1,0 +1,38 @@
+image:
+  # Replace with your own registry path, e.g. ghcr.io/your-org/fleetboard-dashboard
+  repository: ghcr.io/your-org/fleetboard-dashboard
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: false
+  className: ""
+  hosts:
+    - host: fleetboard-dashboard.local
+      paths:
+        - path: /
+          pathType: Prefix
+
+resources: {}
+
+# One entry per cluster name. Keys must match the names listed in `clusters`.
+# Each key is exposed as FLEETBOARD_API_KEY_<CLUSTER_UPPER> inside the pod.
+apiKeys:
+  dev: ""
+  staging: ""
+  prod: ""
+
+clusters:
+  - dev
+  - staging
+  - prod
+
+staleAfterSeconds: 120
+
+# Must stay at 1. The dashboard stores all state in-memory; multiple replicas
+# would each hold a different subset of collector data with no synchronisation.
+replicaCount: 1

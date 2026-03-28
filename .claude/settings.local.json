@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(printf 'node_modules\\\\ndist\\\\n.next\\\\n.DS_Store\\\\n')",
+      "Bash(sed -i '' 's|`/Users/noahispas/Desktop/workspace/gitrepo_private/FleetBoard/dashboard/app/api/ingest/route.ts`|`dashboard/app/api/ingest/route.ts`|g' PROJECT_STATUS.md)",
+      "Bash(sed -i '' 's|`/Users/noahispas/Desktop/workspace/gitrepo_private/FleetBoard/dashboard/app/page.tsx`|`dashboard/app/page.tsx`|g' PROJECT_STATUS.md)",
+      "Bash(sed -i '' 's|`/Users/noahispas/Desktop/workspace/gitrepo_private/FleetBoard/dashboard/lib/store.ts`|`dashboard/lib/store.ts`|g' PROJECT_STATUS.md)",
+      "Bash(sed -i '' 's|`/Users/noahispas/Desktop/workspace/gitrepo_private/FleetBoard/dashboard/lib/types.ts`|`dashboard/lib/types.ts`|g' PROJECT_STATUS.md)",
+      "Bash(sed -i '' 's|`/Users/noahispas/Desktop/workspace/gitrepo_private/FleetBoard/collector/src/index.ts`|`collector/src/index.ts`|g' PROJECT_STATUS.md)",
+      "Bash(npm run:*)",
+      "Bash(npm install:*)"
+    ]
+  }
+}

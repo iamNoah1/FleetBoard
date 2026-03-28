@@ -1,0 +1,34 @@
+image:
+  # Replace with your own registry path, e.g. ghcr.io/your-org/fleetboard-collector
+  repository: ghcr.io/your-org/fleetboard-collector
+  tag: latest
+  pullPolicy: IfNotPresent
+
+clusterName: dev
+dashboardUrl: http://fleetboard-dashboard
+apiKeySecretName: fleetboard-collector-key
+apiKeySecretKey: api-key
+
+scrapeIntervalMs: 30000
+
+# Discovery mode controls which Deployments the collector reports on.
+# Options:
+#   label     - only Deployments with label fleetboard.io/enabled=true  (default)
+#   namespace - all Deployments in namespaceAllowlist (requires namespaceAllowlist)
+#   selector  - Deployments matching labelSelector (requires labelSelector)
+#   all       - every Deployment (filtered by namespaceAllowlist if set)
+discoveryMode: label
+
+# Required when discoveryMode=selector. Standard Kubernetes label selector string.
+# Examples: "app.kubernetes.io/managed-by=Helm", "environment=production,tier=backend"
+labelSelector: ""
+
+# Limit collection to these namespaces (comma-separated in env; list here in Helm).
+# Applies in every discovery mode as an additional filter.
+namespaceAllowlist: []
+
+resources: {}
+
+serviceAccount:
+  create: true
+  name: ""
