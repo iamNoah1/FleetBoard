@@ -11,6 +11,7 @@ service:
 ingress:
   enabled: false
   className: ""
+  annotations: {}
   hosts:
     - host: fleetboard-dashboard.local
       paths:
@@ -21,18 +22,31 @@ resources: {}
 
 # One entry per cluster name. Keys must match the names listed in `clusters`.
 # Each key is exposed as FLEETBOARD_API_KEY_<CLUSTER_UPPER> inside the pod.
-apiKeys:
-  dev: ""
-  staging: ""
-  prod: ""
+# Example:
+#   apiKeys:
+#     prod: ""
+#     eu-west: ""
+apiKeys: {}
 
-clusters:
-  - dev
-  - staging
-  - prod
+# Ordered list of cluster names shown as columns in the UI.
+# Example:
+#   clusters:
+#     - prod
+#     - eu-west
+clusters: []
 
 staleAfterSeconds: 120
 
 # Must stay at 1. The dashboard stores all state in-memory; multiple replicas
 # would each hold a different subset of collector data with no synchronisation.
 replicaCount: 1
+
+# Optional HTTP Basic Auth for the dashboard UI.
+# When enabled, browsers will prompt for credentials before showing the dashboard.
+# The /api/ingest endpoint is excluded and remains protected by per-cluster API keys only.
+# Auth is disabled when user/password are not set — local development requires no configuration.
+auth:
+  enabled: false
+  # Sensitive — inject via --set, do not store in plain values files.
+  basicAuthUser: ""
+  basicAuthPassword: ""

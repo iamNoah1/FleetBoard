@@ -149,17 +149,37 @@ helm uninstall fleetboard-collector -n fleetboard-system
 kubectl delete namespace fleetboard-system   # if no longer needed
 ```
 
+## Optional: enable UI authentication
+
+The dashboard supports HTTP Basic Auth. When enabled, browsers prompt for credentials before displaying the matrix. The `/api/ingest` endpoint is unaffected.
+
+```bash
+helm upgrade --install fleetboard-dashboard \
+  oci://ghcr.io/iamnoah1/helm/fleetboard-dashboard \
+  --namespace fleetboard-system \
+  ... \
+  --set auth.enabled=true \
+  --set auth.basicAuthUser=fleetboard \
+  --set auth.basicAuthPassword=<strong-password>
+```
+
+See [Security](./security.md) for full details.
+
 ## Configuration reference
 
 ### Dashboard values
 
 | Value | Default | Description |
 |---|---|---|
-| `clusters` | `[dev, staging, prod]` | Ordered list of cluster names shown as columns |
+| `clusters` | `[]` | Ordered list of cluster names shown as columns |
 | `apiKeys.<cluster>` | — | API key per cluster, must match the collector's key |
 | `staleAfterSeconds` | `120` | Seconds before a cell is marked stale |
 | `replicaCount` | `1` | Must stay at 1 — state is in-memory |
 | `ingress.enabled` | `false` | Enable ingress |
+| `ingress.annotations` | `{}` | Ingress annotations (e.g. cert-manager, nginx) |
+| `auth.enabled` | `false` | Enable HTTP Basic Auth for the UI |
+| `auth.basicAuthUser` | `""` | Username |
+| `auth.basicAuthPassword` | `""` | Password — inject via `--set`, do not store in plain values |
 | `resources` | `{}` | Pod resource requests/limits |
 
 ### Collector values

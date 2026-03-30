@@ -39,6 +39,8 @@ npm run dev
 
 The dashboard is available at `http://localhost:3000`.
 
+Authentication is automatically disabled when `FLEETBOARD_BASIC_AUTH_USER` and `FLEETBOARD_BASIC_AUTH_PASSWORD` are not set, so local development requires no auth configuration.
+
 Add more cluster names to `FLEETBOARD_CLUSTERS` as you bring up more collectors:
 
 ```bash

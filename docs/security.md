@@ -45,6 +45,35 @@ To rotate a key:
 3. Update the collector secret: `kubectl create secret generic fleetboard-collector-key --from-literal=api-key=<new-key> --dry-run=client -o yaml | kubectl apply -f -`
 4. Restart the collector pod to pick up the new secret value
 
-## Dashboard — no UI authentication
+## Dashboard — UI authentication (HTTP Basic Auth)
 
-The dashboard UI has no authentication in the current version. Anyone who can reach the dashboard URL can see the deployment matrix. For production use, restrict access at the network or ingress level (IP allowlist, VPN, internal-only ingress, etc.).
+The dashboard supports optional HTTP Basic Auth. When enabled, browsers prompt for a username and password before displaying the dashboard. The `/api/ingest` endpoint is excluded and remains protected by per-cluster API keys only.
+
+Auth is opt-in: when `FLEETBOARD_BASIC_AUTH_USER` and `FLEETBOARD_BASIC_AUTH_PASSWORD` are not set, the dashboard is openly accessible. This is the default for local development.
+
+### Enabling auth
+
+Set the following environment variables (or Helm values):
+
+| Variable | Helm value | Description |
+|---|---|---|
+| `FLEETBOARD_BASIC_AUTH_USER` | `auth.basicAuthUser` | Username |
+| `FLEETBOARD_BASIC_AUTH_PASSWORD` | `auth.basicAuthPassword` | Password — use a strong random value |
+
+### Helm install with auth
+
+```bash
+helm upgrade --install fleetboard-dashboard \
+  oci://ghcr.io/iamnoah1/helm/fleetboard-dashboard \
+  --namespace fleetboard-system --create-namespace \
+  --set auth.enabled=true \
+  --set auth.basicAuthUser=fleetboard \
+  --set auth.basicAuthPassword=<strong-password>
+```
+
+### What is protected
+
+| Path | Auth required |
+|---|---|
+| `/` (dashboard UI) | Yes |
+| `/api/ingest` | No (API key auth only) |
