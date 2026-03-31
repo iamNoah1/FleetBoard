@@ -104,14 +104,16 @@ The collector does not require any changes to your existing Deployments:
 
 ## Releasing
 
-A single version tag releases both components:
+A single version tag releases both components. Tags must **not** include a `v` prefix so that Docker image tags and Helm chart versions stay in sync:
 
 ```bash
-git tag v1.2.3
-git push origin v1.2.3
+git tag 1.2.3
+git push origin 1.2.3
 ```
 
-Images and Helm charts are published to GHCR automatically.
+This publishes:
+- Docker image `ghcr.io/iamnoah1/fleetboard-dashboard:1.2.3` (multi-arch: `linux/amd64`, `linux/arm64`)
+- Helm chart `oci://ghcr.io/iamnoah1/helm/fleetboard-dashboard` version `1.2.3`
 
 ## License
 
