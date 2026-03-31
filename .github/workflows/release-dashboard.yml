@@ -2,7 +2,7 @@ name: release-dashboard
 
 on:
   push:
-    tags: ['v*']
+    tags: ['[0-9]*']
   pull_request:
     paths:
       - 'dashboard/**'
