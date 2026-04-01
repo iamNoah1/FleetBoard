@@ -31,13 +31,13 @@ spec:
                 name: {{ include "fleetboard-dashboard.fullname" . }}-keys
           livenessProbe:
             httpGet:
-              path: /
+              path: /api/health
               port: 3000
             initialDelaySeconds: 10
             periodSeconds: 30
           readinessProbe:
             httpGet:
-              path: /
+              path: /api/health
               port: 3000
             initialDelaySeconds: 5
             periodSeconds: 10
