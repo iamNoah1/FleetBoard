@@ -90,6 +90,51 @@ The collector does not require any changes to your existing Deployments:
 
 → [Discovery modes in detail](./docs/discovery-modes.md)
 
+## Ticket visibility
+
+Click any matrix cell to see which Jira tickets are included in that cluster's deployed version compared to another cluster — useful for answering "what's in staging that hasn't hit prod yet?"
+
+### How it works
+
+FleetBoard reads git commit history between two version tags using your source control provider's API, then extracts Jira-style ticket keys (`[A-Z]+-[0-9]+`) from commit messages.
+
+### Configuration
+
+Map each Deployment name to its repository:
+
+```bash
+# Local dev
+FLEETBOARD_REPO_MAP=api=github:myorg/api,worker=gitlab:myorg/worker
+FLEETBOARD_GITHUB_TOKEN=ghp_...
+FLEETBOARD_GITLAB_TOKEN=glpat_...
+
+# Optional: pin the tag format (otherwise tries release/{v}, v{v}, {v})
+FLEETBOARD_TAG_PREFIX=release/
+```
+
+**Helm:**
+
+```yaml
+repoMap:
+  api: "github:myorg/api"
+  worker: "gitlab:myorg/worker"
+
+tagPrefix: "release/"   # optional
+
+gitProviders:
+  github:
+    token: ""           # inject via --set
+  gitlab:
+    token: ""
+  bitbucket:
+    token: ""
+    username: ""
+```
+
+Supported providers: `github`, `gitlab`, `bitbucket`.
+
+Deployments without a `repoMap` entry are not clickable — no visual change to the matrix.
+
 ## Documentation
 
 | | |

@@ -26,6 +26,14 @@ spec:
               value: "{{ join "," .Values.clusters }}"
             - name: FLEETBOARD_STALE_AFTER_SECONDS
               value: "{{ .Values.staleAfterSeconds }}"
+            {{- if .Values.repoMap }}
+            - name: FLEETBOARD_REPO_MAP
+              value: {{ $entries := list }}{{- range $k, $v := .Values.repoMap }}{{- $entries = append $entries (printf "%s=%s" $k $v) }}{{- end }}{{ join "," $entries | quote }}
+            {{- end }}
+            {{- if .Values.tagPrefix }}
+            - name: FLEETBOARD_TAG_PREFIX
+              value: {{ .Values.tagPrefix | quote }}
+            {{- end }}
           envFrom:
             - secretRef:
                 name: {{ include "fleetboard-dashboard.fullname" . }}-keys

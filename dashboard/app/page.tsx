@@ -1,4 +1,5 @@
 import Filters from './components/Filters';
+import DeploymentMatrix, { type RowData, type CellData } from './components/DeploymentMatrix';
 import { getConfig } from '@/lib/config';
 import { snapshot } from '@/lib/store';
 import type { Observation } from '@/lib/types';
@@ -23,6 +24,15 @@ function statusText(obs?: Observation, stale = false): string {
   return obs.health;
 }
 
+function parseRepoMap(raw: string): Set<string> {
+  const deployments = new Set<string>()
+  for (const entry of raw.split(',')) {
+    const eq = entry.indexOf('=')
+    if (eq !== -1) deployments.add(entry.slice(0, eq).trim())
+  }
+  return deployments
+}
+
 export default function Home({
   searchParams
 }: {
@@ -30,6 +40,7 @@ export default function Home({
 }) {
   const config = getConfig();
   const data = snapshot();
+  const configuredDeployments = parseRepoMap(process.env.FLEETBOARD_REPO_MAP ?? '')
 
   const rowKeys = new Set<string>();
   const namespaces = new Set<string>();
@@ -44,7 +55,7 @@ export default function Home({
   const nsFilter = (searchParams.namespace ?? '').trim();
   const qFilter = (searchParams.q ?? '').trim().toLowerCase();
 
-  const rows = Array.from(rowKeys)
+  const filteredKeys = Array.from(rowKeys)
     .filter((key) => {
       const [ns, deployment] = key.split('/');
       if (nsFilter && ns !== nsFilter) return false;
@@ -59,17 +70,40 @@ export default function Home({
   let unknownCount = 0;
   let staleCount = 0;
 
-  for (const row of rows) {
+  const rows: RowData[] = filteredKeys.map(key => {
+    const [, deployment] = key.split('/')
+    const cells: Record<string, CellData | null> = {}
+
     for (const cluster of config.clusters) {
-      const obs = data.get(cluster)?.get(row);
-      if (!obs) continue;
+      const obs = data.get(cluster)?.get(key)
+      if (!obs) {
+        cells[cluster] = null
+        continue
+      }
+      const stale = isStale(obs.timestamp, config.staleAfterSeconds)
       if (obs.health === 'OK') okCount += 1;
       if (obs.health === 'DEGRADED') degradedCount += 1;
       if (obs.health === 'ERROR') errorCount += 1;
       if (obs.health === 'UNKNOWN') unknownCount += 1;
-      if (isStale(obs.timestamp, config.staleAfterSeconds)) staleCount += 1;
+      if (stale) staleCount += 1;
+      cells[cluster] = {
+        statusClass: statusClass(obs, stale),
+        statusText: statusText(obs, stale),
+        version: obs.version,
+        replicasAvailable: obs.replicasAvailable,
+        replicasDesired: obs.replicasDesired,
+        timestamp: obs.timestamp,
+        isStale: stale,
+      }
     }
-  }
+
+    return {
+      key,
+      deployment,
+      hasRepoConfig: configuredDeployments.has(deployment),
+      cells,
+    }
+  })
 
   return (
     <div className="cmd-shell">
@@ -88,7 +122,7 @@ export default function Home({
           </div>
           <div className="cmd-meta-item">
             <span className="cmd-meta-label">SERVICES</span>
-            <span className="cmd-meta-value">{rows.length}</span>
+            <span className="cmd-meta-value">{filteredKeys.length}</span>
           </div>
         </div>
       </header>
@@ -127,47 +161,7 @@ export default function Home({
         <div className="matrix-frame">
           <span className="corner-tl" aria-hidden="true" />
           <div className="matrix-wrap">
-            <table className="matrix">
-              <thead>
-                <tr>
-                  <th>DEPLOYMENT</th>
-                  {config.clusters.map((cluster) => (
-                    <th key={cluster}>{cluster}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((row) => (
-                  <tr key={row}>
-                    <td className="service-name">{row}</td>
-                    {config.clusters.map((cluster) => {
-                      const obs = data.get(cluster)?.get(row);
-                      const stale = obs ? isStale(obs.timestamp, config.staleAfterSeconds) : false;
-                      return (
-                        <td key={`${row}-${cluster}`} className="matrix-cell-td">
-                          <div className={`cell ${statusClass(obs, stale)}`}>
-                            {!obs ? (
-                              <div className="cell-missing">— NO REPORT</div>
-                            ) : (
-                              <>
-                                <div className="cell-header">
-                                  <span className={`cell-led ${statusClass(obs, stale)}`} />
-                                  <span className={`cell-badge ${statusClass(obs, stale)}`}>{statusText(obs, stale)}</span>
-                                </div>
-                                <div className={`cell-version${stale ? ' stale' : ''}`}>{obs.version}</div>
-                                <div className="cell-meta">{obs.replicasAvailable}/{obs.replicasDesired} replicas</div>
-                                <div className="cell-meta">{new Date(obs.timestamp).toLocaleString()}</div>
-                                {stale && <div className="cell-meta">was: {obs.health}</div>}
-                              </>
-                            )}
-                          </div>
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <DeploymentMatrix clusters={config.clusters} rows={rows} />
           </div>
         </div>
       </main>

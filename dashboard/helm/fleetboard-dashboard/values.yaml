@@ -50,3 +50,28 @@ auth:
   # Sensitive — inject via --set, do not store in plain values files.
   basicAuthUser: ""
   basicAuthPassword: ""
+
+# Map of Deployment name → git provider and repository.
+# Format per entry: "<deployment-name>: <provider>:<owner>/<repo>"
+# Supported providers: github, gitlab, bitbucket
+# Example:
+#   repoMap:
+#     api: "github:myorg/api"
+#     worker: "gitlab:myorg/worker"
+repoMap: {}
+
+# Optional git tag prefix prepended to the version string to form a tag name.
+# If unset, FleetBoard tries "release/{version}", "v{version}", "{version}" in order.
+# Example: "release/" to match tags like "release/2.4.1"
+tagPrefix: ""
+
+# Git provider authentication tokens.
+# Sensitive — inject via --set, do not store in plain values files.
+gitProviders:
+  github:
+    token: ""
+  gitlab:
+    token: ""
+  bitbucket:
+    token: ""
+    username: ""
