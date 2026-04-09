@@ -72,6 +72,7 @@ gitProviders:
     token: ""
   gitlab:
     token: ""
+    url: ""     # Optional: set for self-hosted GitLab, e.g. https://gitlab.example.com
   bitbucket:
     token: ""
     username: ""

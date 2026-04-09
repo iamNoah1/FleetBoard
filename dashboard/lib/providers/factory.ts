@@ -17,7 +17,8 @@ export function createProvider(spec: string): GitProvider {
     case 'gitlab': {
       const token = process.env.FLEETBOARD_GITLAB_TOKEN
       if (!token) throw new Error('FLEETBOARD_GITLAB_TOKEN is not set')
-      return new GitLabProvider(token)
+      const baseUrl = process.env.FLEETBOARD_GITLAB_URL
+      return new GitLabProvider(token, baseUrl)
     }
     case 'bitbucket': {
       const token = process.env.FLEETBOARD_BITBUCKET_TOKEN

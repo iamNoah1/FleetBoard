@@ -21,7 +21,7 @@ describe('GitLabProvider', () => {
     const messages = await provider.getCommitMessages('myorg/myapp', 'v1.0.0', 'v1.1.0')
 
     const [calledUrl, calledOptions] = mockFetch.mock.calls[0] as [string, RequestInit]
-    expect(calledUrl).toContain('gitlab.com/api/v4/projects/myorg%2Fmyapp/repository/compare')
+    expect(calledUrl).toContain('https://gitlab.com/api/v4/projects/myorg%2Fmyapp/repository/compare')
     expect(calledUrl).toContain('from=v1.0.0')
     expect(calledUrl).toContain('to=v1.1.0')
     expect((calledOptions.headers as Record<string, string>)['PRIVATE-TOKEN']).toBe('glpat_test')
@@ -46,5 +46,32 @@ describe('GitLabProvider', () => {
     const provider = new GitLabProvider('glpat_test')
     const messages = await provider.getCommitMessages('myorg/myapp', 'v1.0.0', 'v1.0.0')
     expect(messages).toEqual([])
+  })
+
+  it('uses a custom base URL when provided', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ commits: [{ title: 'ABC-1 fix' }] })
+    })
+
+    const provider = new GitLabProvider('glpat_test', 'https://gitlab.example.com')
+    await provider.getCommitMessages('myorg/myapp', 'v1.0.0', 'v1.1.0')
+
+    const [calledUrl] = mockFetch.mock.calls[0] as [string, RequestInit]
+    expect(calledUrl).toContain('https://gitlab.example.com/api/v4/projects/myorg%2Fmyapp/repository/compare')
+  })
+
+  it('strips trailing slash from base URL', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ commits: [] })
+    })
+
+    const provider = new GitLabProvider('glpat_test', 'https://gitlab.example.com/')
+    await provider.getCommitMessages('myorg/myapp', 'v1.0.0', 'v1.1.0')
+
+    const [calledUrl] = mockFetch.mock.calls[0] as [string, RequestInit]
+    expect(calledUrl).toContain('https://gitlab.example.com/api/v4')
+    expect(calledUrl).not.toContain('//api')
   })
 })

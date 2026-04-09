@@ -34,6 +34,10 @@ spec:
             - name: FLEETBOARD_TAG_PREFIX
               value: {{ .Values.tagPrefix | quote }}
             {{- end }}
+            {{- if .Values.gitProviders.gitlab.url }}
+            - name: FLEETBOARD_GITLAB_URL
+              value: {{ .Values.gitProviders.gitlab.url | quote }}
+            {{- end }}
           envFrom:
             - secretRef:
                 name: {{ include "fleetboard-dashboard.fullname" . }}-keys
