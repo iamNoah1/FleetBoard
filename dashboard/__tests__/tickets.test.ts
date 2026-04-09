@@ -38,4 +38,10 @@ describe('extractTickets', () => {
       { key: 'ABC-1', description: 'ABC-1 fix' }
     ])
   })
+
+  it('extracts multiple ticket keys from a single commit message', () => {
+    const result = extractTickets(['ABC-123 and DEF-456 both fixed'])
+    expect(result).toHaveLength(2)
+    expect(result.map(t => t.key)).toEqual(['ABC-123', 'DEF-456'])
+  })
 })

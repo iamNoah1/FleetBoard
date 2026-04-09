@@ -35,7 +35,7 @@ export async function fetchTickets(
     return { tickets: [], error: `No repository configured for deployment "${deployment}"` }
   }
 
-  let provider
+  let provider: ReturnType<typeof createProvider>
   try {
     provider = createProvider(spec)
   } catch (err) {
