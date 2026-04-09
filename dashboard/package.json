@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "jest"
   },
   "dependencies": {
     "next": "14.2.5",
@@ -16,9 +17,12 @@
     "zod": "3.23.8"
   },
   "devDependencies": {
+    "@types/jest": "^30.0.0",
     "@types/node": "20.14.12",
     "@types/react": "18.3.3",
     "@types/react-dom": "18.3.0",
+    "jest": "^30.3.0",
+    "ts-jest": "^29.4.9",
     "typescript": "5.5.4"
   }
 }
