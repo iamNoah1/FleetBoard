@@ -53,7 +53,6 @@ export default function Home({
     })
     .sort();
 
-  const totalCells = rows.length * config.clusters.length;
   let okCount = 0;
   let degradedCount = 0;
   let errorCount = 0;
@@ -63,9 +62,7 @@ export default function Home({
   for (const row of rows) {
     for (const cluster of config.clusters) {
       const obs = data.get(cluster)?.get(row);
-      if (!obs) {
-        continue;
-      }
+      if (!obs) continue;
       if (obs.health === 'OK') okCount += 1;
       if (obs.health === 'DEGRADED') degradedCount += 1;
       if (obs.health === 'ERROR') errorCount += 1;
@@ -75,91 +72,105 @@ export default function Home({
   }
 
   return (
-    <main>
-      <section className="hero">
-        <p className="eyebrow">FleetBoard</p>
-        <h1>Deployment Version Dashboard</h1>
-        <p className="subtitle">
-          Live image-tag and rollout status matrix across configured Kubernetes clusters.
-        </p>
-      </section>
+    <div className="cmd-shell">
+      <header className="cmd-header">
+        <div className="cmd-brand">
+          <div className="cmd-brand-indicator" />
+          <div>
+            <div className="cmd-brand-name">FLEETBOARD</div>
+            <div className="cmd-brand-sub">DEPLOYMENT CONTROL MATRIX</div>
+          </div>
+        </div>
+        <div className="cmd-header-meta">
+          <div className="cmd-meta-item">
+            <span className="cmd-meta-label">CLUSTERS</span>
+            <span className="cmd-meta-value">{config.clusters.length}</span>
+          </div>
+          <div className="cmd-meta-item">
+            <span className="cmd-meta-label">SERVICES</span>
+            <span className="cmd-meta-value">{rows.length}</span>
+          </div>
+        </div>
+      </header>
 
-      <section className="stats">
-        <div className="stat">
-          <span className="label">Visible Services</span>
-          <strong>{rows.length}</strong>
+      <main className="cmd-main">
+        <div className="sys-status">
+          <div className="sys-stat ok">
+            <span className="sys-stat-led" />
+            <span className="sys-stat-label">OK</span>
+            <strong className="sys-stat-val">{okCount}</strong>
+          </div>
+          <div className="sys-stat degraded">
+            <span className="sys-stat-led" />
+            <span className="sys-stat-label">DEGRADED</span>
+            <strong className="sys-stat-val">{degradedCount}</strong>
+          </div>
+          <div className="sys-stat error">
+            <span className="sys-stat-led" />
+            <span className="sys-stat-label">ERROR</span>
+            <strong className="sys-stat-val">{errorCount}</strong>
+          </div>
+          <div className="sys-stat unknown">
+            <span className="sys-stat-led" />
+            <span className="sys-stat-label">UNKNOWN</span>
+            <strong className="sys-stat-val">{unknownCount}</strong>
+          </div>
+          <div className="sys-stat stale">
+            <span className="sys-stat-led" />
+            <span className="sys-stat-label">STALE</span>
+            <strong className="sys-stat-val">{staleCount}</strong>
+          </div>
         </div>
-        <div className="stat">
-          <span className="label">Cluster Cells</span>
-          <strong>{totalCells}</strong>
-        </div>
-        <div className="stat ok">
-          <span className="label">OK</span>
-          <strong>{okCount}</strong>
-        </div>
-        <div className="stat degraded">
-          <span className="label">Degraded</span>
-          <strong>{degradedCount}</strong>
-        </div>
-        <div className="stat error">
-          <span className="label">Error</span>
-          <strong>{errorCount}</strong>
-        </div>
-        <div className="stat unknown">
-          <span className="label">Unknown</span>
-          <strong>{unknownCount}</strong>
-        </div>
-        <div className="stat stale">
-          <span className="label">Stale</span>
-          <strong>{staleCount}</strong>
-        </div>
-      </section>
 
-      <Filters namespaces={Array.from(namespaces).sort()} />
+        <Filters namespaces={Array.from(namespaces).sort()} />
 
-      <div className="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Namespace/Deployment</th>
-              {config.clusters.map((cluster) => (
-                <th key={cluster}>{cluster}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <tr key={row}>
-                <td className="service-name">{row}</td>
-                {config.clusters.map((cluster) => {
-                  const obs = data.get(cluster)?.get(row);
-                  const stale = obs ? isStale(obs.timestamp, config.staleAfterSeconds) : false;
-                  return (
-                    <td key={`${row}-${cluster}`}>
-                      <article className={`cell ${statusClass(obs, stale)}`}>
-                        {!obs ? (
-                          <div className="missing-text">No report</div>
-                        ) : (
-                          <>
-                            <div className="cell-top">
-                              <strong className={`version${stale ? ' version-stale' : ''}`}>{obs.version}</strong>
-                              <span className={`badge ${statusClass(obs, stale)}`}>{statusText(obs, stale)}</span>
-                            </div>
-                            <div className="meta">{obs.replicasAvailable}/{obs.replicasDesired} replicas</div>
-                            <div className="meta">source: {obs.source}</div>
-                            <div className="meta">last seen: {new Date(obs.timestamp).toLocaleString()}</div>
-                            {stale ? <div className="meta stale-note">last known: {obs.health}</div> : null}
-                          </>
-                        )}
-                      </article>
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </main>
+        <div className="matrix-frame">
+          <span className="corner-tl" aria-hidden="true" />
+          <div className="matrix-wrap">
+            <table className="matrix">
+              <thead>
+                <tr>
+                  <th>DEPLOYMENT</th>
+                  {config.clusters.map((cluster) => (
+                    <th key={cluster}>{cluster}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row) => (
+                  <tr key={row}>
+                    <td className="service-name">{row}</td>
+                    {config.clusters.map((cluster) => {
+                      const obs = data.get(cluster)?.get(row);
+                      const stale = obs ? isStale(obs.timestamp, config.staleAfterSeconds) : false;
+                      return (
+                        <td key={`${row}-${cluster}`} className="matrix-cell-td">
+                          <div className={`cell ${statusClass(obs, stale)}`}>
+                            {!obs ? (
+                              <div className="cell-missing">— NO REPORT</div>
+                            ) : (
+                              <>
+                                <div className="cell-header">
+                                  <span className={`cell-led ${statusClass(obs, stale)}`} />
+                                  <span className={`cell-badge ${statusClass(obs, stale)}`}>{statusText(obs, stale)}</span>
+                                </div>
+                                <div className={`cell-version${stale ? ' stale' : ''}`}>{obs.version}</div>
+                                <div className="cell-meta">{obs.replicasAvailable}/{obs.replicasDesired} replicas</div>
+                                <div className="cell-meta">{new Date(obs.timestamp).toLocaleString()}</div>
+                                {stale && <div className="cell-meta">was: {obs.health}</div>}
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
   );
 }
