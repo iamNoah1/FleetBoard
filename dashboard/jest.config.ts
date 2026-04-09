@@ -7,7 +7,7 @@ const config: Config = {
       tsconfig: {
         module: 'CommonJS',
         moduleResolution: 'node',
-        jsx: 'react',
+        jsx: 'react-jsx',
         strict: true,
         esModuleInterop: true,
       }
@@ -16,7 +16,13 @@ const config: Config = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1'
   },
-  testMatch: ['**/__tests__/**/*.test.ts', '**/__tests__/**/*.test.tsx']
+  testMatch: [
+    '**/__tests__/**/*.test.ts',
+    '**/__tests__/**/*.test.tsx',
+    '**/*.test.ts',
+    '**/*.test.tsx'
+  ],
+  testPathIgnorePatterns: ['/node_modules/']
 }
 
 export default config
